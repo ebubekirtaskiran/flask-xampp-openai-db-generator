@@ -1,0 +1,92 @@
+/* Genel arka plan */
+.bg-gradient {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #1d4ed8 0, #020617 45%, #020617 100%);
+  color: #0f172a;
+}
+
+/* Blur navbar */
+.navbar-blur {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+/* Küçük logodaki renkli nokta */
+.logo-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #38bdf8, #a855f7, #f97316);
+}
+
+/* Cam etkili kart */
+.glass-card {
+  background: rgba(15, 23, 42, 0.82);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.7);
+  color: #e5e7eb;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  backdrop-filter: blur(18px);
+}
+
+/* Açıklama kartı */
+.info-card {
+  background: rgba(248, 250, 252, 0.96);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+}
+
+/* Liste stil */
+.feature-list {
+  list-style: none;
+  padding-left: 0;
+}
+.feature-list li {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 6px;
+}
+.feature-list li::before {
+  content: "•";
+  position: absolute;
+  left: 6px;
+  color: #2563eb;
+}
+
+/* Formlar */
+.form-label {
+  color: #e5e7eb;
+}
+.form-control {
+  background-color: rgba(15, 23, 42, 0.9);
+  border-color: #1e293b;
+  color: #e5e7eb;
+}
+.form-control:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 0.15rem rgba(56, 189, 248, 0.4);
+}
+.form-text {
+  color: #94a3b8;
+}
+
+/* Buton efekti */
+.btn-glow {
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+}
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  border: none;
+}
+
+/* Küçük ekran uyumu */
+@media (max-width: 768px) {
+  .glass-card,
+  .info-card {
+    padding: 18px;
+  }
+}

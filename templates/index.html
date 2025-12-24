@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Bonus Proje | AI Destekli Veritabanı Tasarımcısı</title>
+
+  <!-- Bootstrap 5 CDN -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+    crossorigin="anonymous"
+  >
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-gradient">
+
+  <nav class="navbar navbar-dark navbar-blur mb-4">
+    <div class="container">
+      <span class="navbar-brand mb-0 h1">
+        <span class="logo-dot"></span>
+        Bonus Proje · AI DB Assistant
+      </span>
+    </div>
+  </nav>
+
+  <div class="container py-3">
+    <div class="row g-4 align-items-stretch">
+      <!-- Sol açıklama paneli -->
+      <div class="col-lg-5">
+        <div class="info-card h-100 p-4">
+          <h2 class="mb-3">AI Destekli Veritabanı Tasarım Aracı</h2>
+          <p class="text-muted mb-3">
+            Bu uygulama, girdiğin proje tanımından yola çıkarak:
+          </p>
+          <ul class="feature-list">
+            <li>İş kurallarını (Business Rules) otomatik çıkarır,</li>
+            <li>ER bileşenlerini (E/A/R/C) ve 3NF tabloları oluşturur,</li>
+            <li>SQL DDL + rapor sorguları önerir,</li>
+            <li>Ve kısa bir yansıtma (reflection) metni üretir.</li>
+          </ul>
+          <p class="text-muted mt-3 mb-1">
+            Sağ taraftaki formda, hocanın istediği formatta proje alanını doldurup
+            <strong>“Analiz Et”</strong> butonuna tıklaman yeterli.
+          </p>
+          <div class="small text-secondary">
+            * Örnek domain: <code>Social Media / Likes</code><br>
+            * Bu sayfanın ekran görüntüsünü raporuna da koyabilirsin.
+          </div>
+        </div>
+      </div>
+
+      <!-- Sağ form kartı -->
+      <div class="col-lg-7">
+        <div class="glass-card p-4 p-md-5 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Proje Tanımı</h3>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+              Adım 1 · Tanımla
+            </span>
+          </div>
+
+          <form action="{{ url_for('process') }}" method="post" class="form-grid">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Domain</label>
+              <textarea name="domain" class="form-control" rows="2" required>
+Social Media / Content Sharing (users, posts, comments, likes)</textarea>
+              <div class="form-text">Sistem alanı: sosyal medya, e-ticaret, IoT, vb.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Primary Entity Focus</label>
+              <textarea name="primary_entity" class="form-control" rows="2" required>Likes</textarea>
+              <div class="form-text">Merkezde hangi varlık var? (ör. Likes, Orders, Reservations)</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Constraint / Rule</label>
+              <textarea name="constraint_rule" class="form-control" rows="3" required>
+A user can like a given post at most once.</textarea>
+              <div class="form-text">Kritik iş kuralı veya kısıtlar (max/min, uniqueness, zorunluluk vb.).</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Advanced Feature</label>
+              <textarea name="advanced_feature" class="form-control" rows="2">
+Indexing: Posts(UserID, CreatedAt)</textarea>
+              <div class="form-text">Indexing, partitioning, caching gibi gelişmiş özellikler.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Security / Access Control</label>
+              <textarea name="security" class="form-control" rows="3">
+Advertisers can view aggregated analytics only.</textarea>
+              <div class="form-text">Hangi roller hangi verilere erişebilir?</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Reporting Requirement</label>
+              <textarea name="reporting" class="form-control" rows="2">
+Top tags by usage.</textarea>
+              <div class="form-text">Rapor ihtiyacı: top N, özet, analytics vb.</div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Common Tasks</label>
+              <textarea name="common_tasks" class="form-control" rows="3">
+Create an ERD, design a relational schema with keys & constraints, write SQL DDL/DML, implement the business rule, apply indexing, configure role-based security, and generate the required report.</textarea>
+              <div class="form-text">Ödev kapsamında beklenen işleri yaz.</div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+              <button type="reset" class="btn btn-outline-secondary">
+                Temizle
+              </button>
+              <button type="submit" class="btn btn-primary btn-glow">
+                Analiz Et ve Çıktıları Üret
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS (isteğe bağlı) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous">
+  </script>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bonus Proje | Çıktılar</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Arial; background:#2f3746; color:#e9eef7; margin:0;}
+    a{color:#8bd3ff;}
+    .wrap{max-width:1200px; margin:24px auto; padding:0 16px;}
+    .card{background:#3a4354; border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.25); margin-bottom:16px;}
+    .muted{color:#b9c3d6}
+    .tabs{display:flex; gap:10px; flex-wrap:wrap; margin:12px 0;}
+    .tabbtn{background:#243146; color:#cfe6ff; border:1px solid rgba(255,255,255,.12); padding:10px 12px; border-radius:10px; cursor:pointer}
+    .tabbtn.active{background:#ffffff; color:#1f2a3a}
+    .tab{display:none}
+    .tab.active{display:block}
+    .grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+    .table{width:100%; border-collapse:collapse; overflow:hidden; border-radius:12px}
+    .table th,.table td{border-bottom:1px solid rgba(255,255,255,.12); padding:10px; text-align:left; vertical-align:top}
+    .table th{color:#cfe6ff; font-weight:600}
+    pre{background:#121826; color:#dbe7ff; padding:12px; border-radius:12px; overflow:auto}
+    .ok{color:#5dff8a}
+    .warn{color:#ffd36b}
+    .err{color:#ff6b6b}
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card">
+    <h2>Analiz Sonuçları</h2>
+    <div class="muted">Proje açıklamasından yola çıkarak üretilen iş kuralları, E/A/R/C, 3NF ve SQL çıktıları.</div>
+    <h3>Proje Açıklaması</h3>
+    <pre>{{ project_description }}</pre>
+  </div>
+
+  <!-- DEBUG: İstersen sonra kaldır -->
+  <div class="card">
+    <details>
+      <summary>DEBUG: result JSON (gerekirse)</summary>
+      <pre style="white-space:pre-wrap;">{{ result | tojson(indent=2) }}</pre>
+    </details>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tabbtn active" data-tab="t1">1. Özet</button>
+      <button class="tabbtn" data-tab="t2">2. İş Kuralları</button>
+      <button class="tabbtn" data-tab="t3">3. E/A/R/C</button>
+      <button class="tabbtn" data-tab="t4">4. 3NF Tablolar</button>
+      <button class="tabbtn" data-tab="t5">5. SQL & Raporlar</button>
+      <button class="tabbtn" data-tab="t6">6. Yansıtma</button>
+      <button class="tabbtn" data-tab="t7">7. XAMPP</button>
+    </div>
+
+    <!-- 1 Özet -->
+    <section id="t1" class="tab active">
+      <h3>Proje Özeti</h3>
+      <p>{{ result.get('project_summary','(Özet yok)') }}</p>
+    </section>
+
+    <!-- 2 İş Kuralları -->
+    <section id="t2" class="tab">
+      <h3>İş Kuralları (Business Rules)</h3>
+      {% set rules = result.get('business_rules', []) %}
+      <table class="table">
+        <thead>
+        <tr>
+          <th>BR_ID</th>
+          <th>Tip</th>
+          <th>Kural</th>
+          <th>ER Etkisi</th>
+          <th>Uygulama İpucu</th>
+          <th>Gerekçe</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if rules and rules|length > 0 %}
+          {% for r in rules %}
+          <tr>
+            <td>{{ r.get('BR_ID','') }}</td>
+            <td>{{ r.get('type','') }}</td>
+            <td>{{ r.get('rule','') }}</td>
+            <td>{{ r.get('er_effect','') }}</td>
+            <td>{{ r.get('implementation_hint','') }}</td>
+            <td>{{ r.get('rationale','') }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="6" class="muted">İş kuralı bulunamadı.</td></tr>
+        {% endif %}
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 3 E/A/R/C -->
+    <section id="t3" class="tab">
+      <h3>E/A/R/C Bileşenleri</h3>
+      {% set earc = result.get('earc', {}) %}
+      {% set entities = earc.get('entities', []) %}
+      {% set rels = earc.get('relationships', []) %}
+      {% set cons = earc.get('constraints', []) %}
+
+      <h4>Entities (Varlıklar)</h4>
+      <div class="grid">
+        {% if entities and entities|length > 0 %}
+          {% for e in entities %}
+            <div class="card" style="margin:0;">
+              <h4>{{ e.get('name','(İsimsiz Varlık)') }}</h4>
+              <div class="muted">Öznitelikler:</div>
+              <ul>
+                {% set attrs = e.get('attributes', []) %}
+                {% if attrs and attrs|length > 0 %}
+                  {% for a in attrs %}
+                    <li>{{ a }}</li>
+                  {% endfor %}
+                {% else %}
+                  <li class="muted">Öznitelik listesi yok.</li>
+                {% endif %}
+              </ul>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="muted">Varlık bulunamadı.</div>
+        {% endif %}
+      </div>
+
+      <h4 style="margin-top:16px;">Relationships (İlişkiler)</h4>
+      <ul>
+        {% if rels and rels|length > 0 %}
+          {% for r in rels %}
+            <li>
+              {% if r is mapping %}
+                {{ r.get('from','') }} → {{ r.get('to','') }} : {{ r.get('type','') }}
+              {% else %}
+                {{ r }}
+              {% endif %}
+            </li>
+          {% endfor %}
+        {% else %}
+          <li class="muted">İlişki bulunamadı.</li>
+        {% endif %}
+      </ul>
+
+      <h4>Constraints (Kısıtlar)</h4>
+      <ul>
+        {% if cons and cons|length > 0 %}
+          {% for c in cons %}
+            <li>
+              {% if c is mapping %}
+                {{ c.get('rule','') }}
+              {% else %}
+                {{ c }}
+              {% endif %}
+            </li>
+          {% endfor %}
+        {% else %}
+          <li class="muted">Kısıt bulunamadı.</li>
+        {% endif %}
+      </ul>
+    </section>
+
+    <!-- 4 3NF -->
+    <section id="t4" class="tab">
+      <h3>3NF Tablolar</h3>
+      {% set t3 = result.get('tables_3nf', []) %}
+
+      {% if t3 and t3|length > 0 %}
+        {% for t in t3 %}
+          {% if t is mapping %}
+            <div class="card" style="background:#313a4a">
+              <h4>{{ t.get('name','(Tablo)') }}</h4>
+              {% set cols = t.get('columns', []) %}
+              {% if cols and cols|length > 0 %}
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Sütun</th>
+                      <th>Tip</th>
+                      <th>Kısıtlar</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for col in cols %}
+                      <tr>
+                        <td>{{ col.get('name','') }}</td>
+                        <td>{{ col.get('type','') }}</td>
+                        <td>{{ col.get('constraints','') }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              {% else %}
+                <div class="muted">Kolon detayı yok.</div>
+              {% endif %}
+            </div>
+          {% else %}
+            <div class="card" style="background:#313a4a">
+              <h4>{{ t }}</h4>
+              <div class="muted">Detay verilmedi.</div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <div class="muted">3NF tablo bilgisi bulunamadı.</div>
+      {% endif %}
+    </section>
+
+    <!-- 5 SQL -->
+    <section id="t5" class="tab">
+      <h3>SQL DDL ve Raporlama</h3>
+      {% set sql = result.get('sql', {}) %}
+
+      <h4>DDL (CREATE TABLE)</h4>
+      <pre>{{ (sql.get('ddl','') or '').strip() }}</pre>
+
+      <h4>Ek SQL Nesneleri</h4>
+      {% set extras = sql.get('extra_objects', []) %}
+      {% if extras and extras|length > 0 %}
+        <ul>
+          {% for x in extras %}
+            <li>{{ x }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="muted">Ek nesne yok.</div>
+      {% endif %}
+
+      <h4>Raporlar (SELECT)</h4>
+      {% set reps = sql.get('reports', []) %}
+      {% if reps and reps|length > 0 %}
+        <ul>
+          {% for r in reps %}
+            <li><pre style="margin:10px 0;">{{ r }}</pre></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="muted">Rapor sorgusu yok.</div>
+      {% endif %}
+    </section>
+
+    <!-- 6 Yansıtma -->
+    <section id="t6" class="tab">
+      <h3>Yansıtma (Reflection)</h3>
+      <p>{{ result.get('reflection','(Yansıtma yok)') }}</p>
+    </section>
+
+    <!-- 7 XAMPP -->
+    <section id="t7" class="tab">
+      <h3>XAMPP MySQL Durumu</h3>
+
+      <h4>Mevcut Tablolar</h4>
+      {% if tables_now and tables_now|length > 0 %}
+        <ul>
+          {% for t in tables_now %}
+            <li>{{ t }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="muted">Tablo bulunamadı.</div>
+      {% endif %}
+
+      <h4>DDL Uygulanan Komut Sayısı</h4>
+      {% if ddl_executed and ddl_executed|length > 0 %}
+        <p class="ok">✅ {{ ddl_executed|length }} komut çalıştı.</p>
+      {% else %}
+        <p class="muted">DDL uygulanmadı (DDL boş olabilir).</p>
+      {% endif %}
+
+      <h4>DDL Hataları</h4>
+      {% if ddl_errors and ddl_errors|length > 0 %}
+        <div class="warn">
+          <b>⚠ Bazı komutlar hata verdi.</b>
+        </div>
+        {% for e in ddl_errors %}
+          <div class="card" style="background:#2b3444">
+            <div class="err"><b>Hata:</b> {{ e.error }}</div>
+            <pre style="white-space:pre-wrap;">{{ e.statement }}</pre>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="ok">✅ Hata yok.</p>
+      {% endif %}
+
+      <h4>Demo Veri Durumu</h4>
+      {% if seed_info %}
+        {% if seed_info.seeded %}
+          <p class="ok">✅ Demo veriler eklendi.</p>
+        {% else %}
+          <p class="muted">Demo veri eklenmedi: {{ seed_info.reason }}</p>
+        {% endif %}
+      {% endif %}
+
+      <h4>Rapor Sorguları Çıktıları</h4>
+      {% if report_outputs and report_outputs|length > 0 %}
+        {% for r in report_outputs %}
+          <div class="card" style="background:#2b3444">
+            <div><b>Sorgu:</b></div>
+            <pre style="white-space:pre-wrap;">{{ r.query }}</pre>
+
+            {% if r.error %}
+              <div class="err"><b>Hata:</b> {{ r.error }}</div>
+            {% else %}
+              <div class="muted">İlk 50 satır:</div>
+              <pre style="white-space:pre-wrap;">{{ r.rows }}</pre>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="muted">Rapor sorgusu çalıştırılmadı.</div>
+      {% endif %}
+    </section>
+  </div>
+
+</div>
+
+<script>
+  // Basit tab sistemi
+  const btns = document.querySelectorAll(".tabbtn");
+  const tabs = document.querySelectorAll(".tab");
+
+  btns.forEach(b=>{
+    b.addEventListener("click", ()=>{
+      btns.forEach(x=>x.classList.remove("active"));
+      tabs.forEach(t=>t.classList.remove("active"));
+      b.classList.add("active");
+      document.getElementById(b.dataset.tab).classList.add("active");
+    });
+  });
+</script>
+
+</body>
+</html>
