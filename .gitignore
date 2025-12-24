@@ -1,6 +1,34 @@
-# Secrets
-.env
-
-# Python cache
+# ---- Python ----
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# ---- Virtual env ----
+.venv/
+venv/
+ENV/
+env/
+
+# ---- IDE / Editor ----
+.vscode/
+.idea/
+*.swp
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ---- Logs / temp ----
+*.log
+*.tmp
+
+# ---- Secrets ----
+.env
+.env.*
+*.key
+
+# ---- OneDrive (genel geçici/çakışma dosyaları) ----
+* - Copy.*
+* - Kopya.*
+*.lnk
